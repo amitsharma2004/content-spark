@@ -1,0 +1,92 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 230 25% 7%;
+    --foreground: 210 40% 96%;
+
+    --card: 230 20% 10%;
+    --card-foreground: 210 40% 96%;
+
+    --popover: 230 20% 10%;
+    --popover-foreground: 210 40% 96%;
+
+    --primary: 160 84% 39%;
+    --primary-foreground: 230 25% 7%;
+
+    --secondary: 230 18% 16%;
+    --secondary-foreground: 210 40% 90%;
+
+    --muted: 230 15% 14%;
+    --muted-foreground: 215 15% 55%;
+
+    --accent: 270 60% 55%;
+    --accent-foreground: 210 40% 96%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 230 15% 18%;
+    --input: 230 15% 18%;
+    --ring: 160 84% 39%;
+
+    --radius: 0.75rem;
+
+    --sidebar-background: 230 22% 9%;
+    --sidebar-foreground: 210 30% 80%;
+    --sidebar-primary: 160 84% 39%;
+    --sidebar-primary-foreground: 230 25% 7%;
+    --sidebar-accent: 230 18% 14%;
+    --sidebar-accent-foreground: 210 40% 96%;
+    --sidebar-border: 230 15% 15%;
+    --sidebar-ring: 160 84% 39%;
+
+    --gradient-primary: linear-gradient(135deg, hsl(160 84% 39%), hsl(190 80% 45%));
+    --gradient-accent: linear-gradient(135deg, hsl(270 60% 55%), hsl(300 60% 50%));
+    --gradient-surface: linear-gradient(180deg, hsl(230 20% 12%), hsl(230 25% 7%));
+    --shadow-glow: 0 0 40px -10px hsl(160 84% 39% / 0.3);
+    --shadow-card: 0 4px 24px -4px hsl(0 0% 0% / 0.4);
+
+    --chart-1: 160 84% 39%;
+    --chart-2: 270 60% 55%;
+    --chart-3: 45 93% 58%;
+    --chart-4: 200 70% 50%;
+    --chart-5: 340 65% 55%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-body antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Space Grotesk', sans-serif;
+  }
+}
+
+@layer utilities {
+  .glass {
+    @apply bg-card/60 backdrop-blur-xl border border-border/50;
+  }
+  .gradient-text {
+    background: linear-gradient(135deg, hsl(160 84% 39%), hsl(190 80% 45%));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .gradient-accent-text {
+    background: linear-gradient(135deg, hsl(270 60% 55%), hsl(300 60% 50%));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+}
