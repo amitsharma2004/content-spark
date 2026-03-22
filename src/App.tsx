@@ -10,6 +10,7 @@ import Generate from "./pages/Generate";
 import CalendarView from "./pages/CalendarView";
 import Queue from "./pages/Queue";
 import History from "./pages/History";
+import Analytics from "./pages/Analytics";
 import BrandProfile from "./pages/BrandProfile";
 import TeamManagement from "./pages/TeamManagement";
 import Auth from "./pages/Auth";
