@@ -142,6 +142,25 @@ export function ContentCard({ item, index = 0, onContentUpdate }: ContentCardPro
     }
   };
 
+  const handleSchedule = async (date: Date | undefined) => {
+    if (!date) return;
+    try {
+      const { error } = await supabase
+        .from('generated_content')
+        .update({ scheduled_at: date.toISOString(), status: 'scheduled' })
+        .eq('id', item.id);
+
+      if (error) throw error;
+      setScheduledDate(date);
+      setCurrentStatus('scheduled');
+      queryClient.invalidateQueries({ queryKey: ['generated-content'] });
+      queryClient.invalidateQueries({ queryKey: ['calendar-content'] });
+      toast.success(`Scheduled for ${format(date, 'PPP')}`);
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to schedule');
+    }
+  };
+
   return (
     <>
       <motion.div
