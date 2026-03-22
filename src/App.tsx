@@ -29,6 +29,7 @@ function ProtectedRoutes() {
       <Route element={<AppLayout />}>
         <Route index element={<Index />} />
         <Route path="generate" element={<Generate />} />
+        <Route path="analytics" element={<Analytics />} />
         <Route path="calendar" element={<CalendarView />} />
         <Route path="queue" element={<Queue />} />
         <Route path="history" element={<History />} />
