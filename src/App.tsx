@@ -10,6 +10,7 @@ import Generate from "./pages/Generate";
 import CalendarView from "./pages/CalendarView";
 import Queue from "./pages/Queue";
 import History from "./pages/History";
+import Analytics from "./pages/Analytics";
 import BrandProfile from "./pages/BrandProfile";
 import TeamManagement from "./pages/TeamManagement";
 import Auth from "./pages/Auth";
@@ -28,6 +29,7 @@ function ProtectedRoutes() {
       <Route element={<AppLayout />}>
         <Route index element={<Index />} />
         <Route path="generate" element={<Generate />} />
+        <Route path="analytics" element={<Analytics />} />
         <Route path="calendar" element={<CalendarView />} />
         <Route path="queue" element={<Queue />} />
         <Route path="history" element={<History />} />

@@ -83,6 +83,53 @@ export type Database = {
         }
         Relationships: []
       }
+      post_analytics: {
+        Row: {
+          clicks: number
+          comments: number
+          content_id: string
+          created_at: string
+          id: string
+          impressions: number
+          likes: number
+          shares: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          clicks?: number
+          comments?: number
+          content_id: string
+          created_at?: string
+          id?: string
+          impressions?: number
+          likes?: number
+          shares?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          clicks?: number
+          comments?: number
+          content_id?: string
+          created_at?: string
+          id?: string
+          impressions?: number
+          likes?: number
+          shares?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_analytics_content_id_fkey"
+            columns: ["content_id"]
+            isOneToOne: false
+            referencedRelation: "generated_content"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string

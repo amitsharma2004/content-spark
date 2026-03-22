@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Linkedin, Twitter, BookOpen, Clock, CheckCircle2, FileEdit,
   AlertCircle, Copy, Check, ExternalLink, X, Wand2, Loader2,
-  ImageIcon, Send, ShieldCheck, XCircle,
+  ImageIcon, Send, ShieldCheck, XCircle, CalendarIcon,
 } from 'lucide-react';
 import { ContentItem, ContentStatus } from '@/types/content';
 import { Badge } from '@/components/ui/badge';
@@ -13,6 +13,9 @@ import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { useUserRole } from '@/hooks/useUserRole';
 import { useQueryClient } from '@tanstack/react-query';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { format } from 'date-fns';
 
 const platformConfig = {
   linkedin: { icon: Linkedin, label: 'LinkedIn', color: 'text-blue-400' },
@@ -53,6 +56,7 @@ export function ContentCard({ item, index = 0, onContentUpdate }: ContentCardPro
   const [displayContent, setDisplayContent] = useState(item.content);
   const [imageUrl, setImageUrl] = useState(item.imageUrl);
   const [currentStatus, setCurrentStatus] = useState<ContentStatus>(item.status);
+  const [scheduledDate, setScheduledDate] = useState<Date | undefined>(item.scheduledAt);
   const { isAdmin } = useUserRole();
   const queryClient = useQueryClient();
   const platform = platformConfig[item.platform];
@@ -135,6 +139,25 @@ export function ContentCard({ item, index = 0, onContentUpdate }: ContentCardPro
       toast.error(err.message || 'Failed to generate image');
     } finally {
       setIsGeneratingImage(false);
+    }
+  };
+
+  const handleSchedule = async (date: Date | undefined) => {
+    if (!date) return;
+    try {
+      const { error } = await supabase
+        .from('generated_content')
+        .update({ scheduled_at: date.toISOString(), status: 'scheduled' })
+        .eq('id', item.id);
+
+      if (error) throw error;
+      setScheduledDate(date);
+      setCurrentStatus('scheduled');
+      queryClient.invalidateQueries({ queryKey: ['generated-content'] });
+      queryClient.invalidateQueries({ queryKey: ['calendar-content'] });
+      toast.success(`Scheduled for ${format(date, 'PPP')}`);
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to schedule');
     }
   };
 
@@ -286,6 +309,43 @@ export function ContentCard({ item, index = 0, onContentUpdate }: ContentCardPro
                     >
                       Back to Draft
                     </Button>
+                  </div>
+                </div>
+              )}
+
+              {/* Schedule Post */}
+              {(currentStatus === 'approved' || currentStatus === 'draft') && (
+                <div className="mb-4 p-3 rounded-lg bg-secondary/50 border border-border">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-xs font-medium text-foreground flex items-center gap-1.5">
+                        <CalendarIcon className="h-3 w-3 text-primary" />
+                        Schedule for publishing
+                      </p>
+                      {scheduledDate && (
+                        <p className="text-xs text-muted-foreground mt-0.5">
+                          Scheduled: {format(scheduledDate, 'PPP')}
+                        </p>
+                      )}
+                    </div>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button variant="outline" size="sm" className="gap-1.5 text-xs">
+                          <CalendarIcon className="h-3 w-3" />
+                          {scheduledDate ? 'Reschedule' : 'Pick Date'}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="end">
+                        <Calendar
+                          mode="single"
+                          selected={scheduledDate}
+                          onSelect={handleSchedule}
+                          disabled={(date) => date < new Date()}
+                          initialFocus
+                          className="p-3 pointer-events-auto"
+                        />
+                      </PopoverContent>
+                    </Popover>
                   </div>
                 </div>
               )}
