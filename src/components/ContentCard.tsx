@@ -56,6 +56,7 @@ export function ContentCard({ item, index = 0, onContentUpdate }: ContentCardPro
   const [displayContent, setDisplayContent] = useState(item.content);
   const [imageUrl, setImageUrl] = useState(item.imageUrl);
   const [currentStatus, setCurrentStatus] = useState<ContentStatus>(item.status);
+  const [scheduledDate, setScheduledDate] = useState<Date | undefined>(item.scheduledAt);
   const { isAdmin } = useUserRole();
   const queryClient = useQueryClient();
   const platform = platformConfig[item.platform];
