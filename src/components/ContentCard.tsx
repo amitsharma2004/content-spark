@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Linkedin, Twitter, BookOpen, Clock, CheckCircle2, FileEdit,
   AlertCircle, Copy, Check, ExternalLink, X, Wand2, Loader2,
-  ImageIcon, Send, ShieldCheck, XCircle,
+  ImageIcon, Send, ShieldCheck, XCircle, CalendarIcon,
 } from 'lucide-react';
 import { ContentItem, ContentStatus } from '@/types/content';
 import { Badge } from '@/components/ui/badge';
@@ -13,6 +13,9 @@ import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { useUserRole } from '@/hooks/useUserRole';
 import { useQueryClient } from '@tanstack/react-query';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { format } from 'date-fns';
 
 const platformConfig = {
   linkedin: { icon: Linkedin, label: 'LinkedIn', color: 'text-blue-400' },
