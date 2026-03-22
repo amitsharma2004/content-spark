@@ -313,6 +313,43 @@ export function ContentCard({ item, index = 0, onContentUpdate }: ContentCardPro
                 </div>
               )}
 
+              {/* Schedule Post */}
+              {(currentStatus === 'approved' || currentStatus === 'draft') && (
+                <div className="mb-4 p-3 rounded-lg bg-secondary/50 border border-border">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-xs font-medium text-foreground flex items-center gap-1.5">
+                        <CalendarIcon className="h-3 w-3 text-primary" />
+                        Schedule for publishing
+                      </p>
+                      {scheduledDate && (
+                        <p className="text-xs text-muted-foreground mt-0.5">
+                          Scheduled: {format(scheduledDate, 'PPP')}
+                        </p>
+                      )}
+                    </div>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button variant="outline" size="sm" className="gap-1.5 text-xs">
+                          <CalendarIcon className="h-3 w-3" />
+                          {scheduledDate ? 'Reschedule' : 'Pick Date'}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="end">
+                        <Calendar
+                          mode="single"
+                          selected={scheduledDate}
+                          onSelect={handleSchedule}
+                          disabled={(date) => date < new Date()}
+                          initialFocus
+                          className="p-3 pointer-events-auto"
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                </div>
+              )}
+
               {/* Refine with AI */}
               <div className="mb-4">
                 <div className="flex items-center gap-2 mb-2">
