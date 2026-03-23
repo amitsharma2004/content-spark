@@ -1,10 +1,11 @@
 import { NavLink, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Sparkles, Calendar, ListTodo, History, Fingerprint, Users, Zap, LogOut, BarChart3 } from 'lucide-react';
+import { LayoutDashboard, Sparkles, Calendar, ListTodo, History, Fingerprint, Users, Zap, LogOut, BarChart3, Kanban } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
 
 const navItems = [
   { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
+  { to: '/kanban', icon: Kanban, label: 'Pipeline' },
   { to: '/generate', icon: Sparkles, label: 'Generate' },
   { to: '/analytics', icon: BarChart3, label: 'Analytics' },
   { to: '/calendar', icon: Calendar, label: 'Calendar' },

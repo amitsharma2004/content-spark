@@ -83,6 +83,77 @@ export type Database = {
         }
         Relationships: []
       }
+      kanban_cards: {
+        Row: {
+          assigned_to: string | null
+          created_at: string
+          draft_content: string | null
+          final_content: string | null
+          id: string
+          platform: string
+          policy_feedback: string[] | null
+          policy_score: number | null
+          publish_url: string | null
+          published_at: string | null
+          search_result: string | null
+          status: string
+          suggested_edits: string | null
+          title: string
+          tone: string
+          topic: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          assigned_to?: string | null
+          created_at?: string
+          draft_content?: string | null
+          final_content?: string | null
+          id?: string
+          platform?: string
+          policy_feedback?: string[] | null
+          policy_score?: number | null
+          publish_url?: string | null
+          published_at?: string | null
+          search_result?: string | null
+          status?: string
+          suggested_edits?: string | null
+          title: string
+          tone?: string
+          topic: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          assigned_to?: string | null
+          created_at?: string
+          draft_content?: string | null
+          final_content?: string | null
+          id?: string
+          platform?: string
+          policy_feedback?: string[] | null
+          policy_score?: number | null
+          publish_url?: string | null
+          published_at?: string | null
+          search_result?: string | null
+          status?: string
+          suggested_edits?: string | null
+          title?: string
+          tone?: string
+          topic?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "kanban_cards_assigned_to_fkey"
+            columns: ["assigned_to"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       post_analytics: {
         Row: {
           clicks: number
