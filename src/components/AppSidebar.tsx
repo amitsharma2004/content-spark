@@ -5,6 +5,7 @@ import { useAuth } from '@/hooks/useAuth';
 
 const navItems = [
   { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
+  { to: '/kanban', icon: Kanban, label: 'Pipeline' },
   { to: '/generate', icon: Sparkles, label: 'Generate' },
   { to: '/analytics', icon: BarChart3, label: 'Analytics' },
   { to: '/calendar', icon: Calendar, label: 'Calendar' },
