@@ -35,23 +35,23 @@ export const REJECTED_STATUS = 'rejected' as const;
 export const PUBLISHED_STATUS = 'published' as const;
 
 export const TONE_COLORS: Record<KanbanTone, string> = {
-  professional: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
-  casual: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30',
-  humorous: 'bg-amber-500/20 text-amber-400 border-amber-500/30',
-  formal: 'bg-slate-500/20 text-slate-300 border-slate-500/30',
-  persuasive: 'bg-rose-500/20 text-rose-400 border-rose-500/30',
+  professional: 'bg-blue-50 text-blue-700 border-blue-200',
+  casual: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+  humorous: 'bg-amber-50 text-amber-700 border-amber-200',
+  formal: 'bg-slate-100 text-slate-700 border-slate-200',
+  persuasive: 'bg-rose-50 text-rose-700 border-rose-200',
 };
 
 export const PLATFORM_CONFIG: Record<KanbanPlatform, { label: string; color: string }> = {
-  blog: { label: 'Blog', color: 'bg-orange-500/20 text-orange-400' },
-  linkedin: { label: 'LinkedIn', color: 'bg-blue-600/20 text-blue-400' },
-  twitter: { label: 'X / Twitter', color: 'bg-sky-500/20 text-sky-400' },
-  instagram: { label: 'Instagram', color: 'bg-pink-500/20 text-pink-400' },
-  email: { label: 'Newsletter', color: 'bg-violet-500/20 text-violet-400' },
+  blog: { label: 'Blog', color: 'bg-orange-50 text-orange-700' },
+  linkedin: { label: 'LinkedIn', color: 'bg-blue-50 text-blue-700' },
+  twitter: { label: 'X / Twitter', color: 'bg-sky-50 text-sky-700' },
+  instagram: { label: 'Instagram', color: 'bg-pink-50 text-pink-700' },
+  email: { label: 'Newsletter', color: 'bg-violet-50 text-violet-700' },
 };
 
 export const AGENT_STATUS_MAP: Record<string, { agent: string; color: string }> = {
-  searching: { agent: 'Search Agent', color: 'bg-cyan-400' },
-  drafting: { agent: 'Content Agent', color: 'bg-emerald-400' },
-  review: { agent: 'Policy Agent', color: 'bg-amber-400' },
+  searching: { agent: 'Search Agent', color: 'bg-cyan-500' },
+  drafting: { agent: 'Content Agent', color: 'bg-emerald-500' },
+  review: { agent: 'Policy Agent', color: 'bg-amber-500' },
 };

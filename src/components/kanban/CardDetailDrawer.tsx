@@ -28,12 +28,12 @@ export function CardDetailDrawer({ card, open, onOpenChange, onApprove, onReject
   if (!card) return null;
 
   const scoreColor = card.policy_score !== null
-    ? card.policy_score >= 75 ? 'text-emerald-400' : card.policy_score >= 60 ? 'text-amber-400' : 'text-red-400'
+    ? card.policy_score >= 75 ? 'text-chart-3' : card.policy_score >= 60 ? 'text-accent' : 'text-destructive'
     : 'text-muted-foreground';
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="w-full sm:max-w-lg bg-[hsl(var(--kanban-surface))] border-border/50 overflow-y-auto">
+      <SheetContent className="w-full sm:max-w-lg bg-background border-border overflow-y-auto">
         <SheetHeader className="pb-4">
           <SheetTitle className="font-display text-lg leading-tight">{card.title}</SheetTitle>
           <div className="flex items-center gap-2 pt-1">
@@ -49,7 +49,7 @@ export function CardDetailDrawer({ card, open, onOpenChange, onApprove, onReject
 
         {/* Agent status indicator */}
         {AGENT_STATUS_MAP[card.status] && (
-          <div className="mb-4 flex items-center gap-2 rounded-lg bg-muted/30 px-3 py-2">
+          <div className="mb-4 flex items-center gap-2 rounded-lg bg-muted px-3 py-2">
             <span className={cn('h-2.5 w-2.5 rounded-full animate-pulse', AGENT_STATUS_MAP[card.status].color)} />
             <span className="text-xs text-muted-foreground">{AGENT_STATUS_MAP[card.status].agent} is working…</span>
           </div>
@@ -57,7 +57,7 @@ export function CardDetailDrawer({ card, open, onOpenChange, onApprove, onReject
 
         {/* Policy score */}
         {card.policy_score !== null && (
-          <div className="mb-4 flex items-center gap-3 rounded-lg bg-muted/30 px-3 py-2">
+          <div className="mb-4 flex items-center gap-3 rounded-lg bg-muted px-3 py-2">
             <Shield className="h-4 w-4 text-muted-foreground" />
             <span className="text-xs text-muted-foreground">Policy Score:</span>
             <span className={cn('text-lg font-bold', scoreColor)}>{card.policy_score}</span>
@@ -81,7 +81,7 @@ export function CardDetailDrawer({ card, open, onOpenChange, onApprove, onReject
 
           <TabsContent value="research" className="mt-3">
             {card.search_result ? (
-              <div className="rounded-lg bg-background/50 p-3 text-sm whitespace-pre-wrap font-mono text-xs leading-relaxed">
+              <div className="rounded-lg bg-muted p-3 text-sm whitespace-pre-wrap font-mono text-xs leading-relaxed">
                 {card.search_result}
               </div>
             ) : (
@@ -91,7 +91,7 @@ export function CardDetailDrawer({ card, open, onOpenChange, onApprove, onReject
 
           <TabsContent value="draft" className="mt-3">
             {card.draft_content ? (
-              <div className="rounded-lg bg-background/50 p-3 text-sm whitespace-pre-wrap font-mono text-xs leading-relaxed">
+              <div className="rounded-lg bg-muted p-3 text-sm whitespace-pre-wrap font-mono text-xs leading-relaxed">
                 {card.draft_content}
               </div>
             ) : (
@@ -103,7 +103,7 @@ export function CardDetailDrawer({ card, open, onOpenChange, onApprove, onReject
             {card.policy_feedback && card.policy_feedback.length > 0 ? (
               <div className="space-y-1">
                 {card.policy_feedback.map((fb, i) => (
-                  <div key={i} className="flex items-start gap-2 rounded bg-background/50 px-3 py-2 text-xs">
+                  <div key={i} className="flex items-start gap-2 rounded bg-muted px-3 py-2 text-xs">
                     <span className="shrink-0 mt-0.5">•</span>
                     <span>{fb}</span>
                   </div>
@@ -114,8 +114,8 @@ export function CardDetailDrawer({ card, open, onOpenChange, onApprove, onReject
             )}
 
             {card.suggested_edits && (
-              <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-3">
-                <p className="text-[10px] font-semibold text-amber-400 mb-1">Suggested Edits</p>
+              <div className="rounded-lg border border-accent/30 bg-accent/5 p-3">
+                <p className="text-[10px] font-semibold text-accent mb-1">Suggested Edits</p>
                 <p className="text-xs text-muted-foreground whitespace-pre-wrap">{card.suggested_edits}</p>
               </div>
             )}
@@ -141,7 +141,7 @@ export function CardDetailDrawer({ card, open, onOpenChange, onApprove, onReject
             <>
               <Button
                 size="sm"
-                className="gap-1 bg-emerald-600 hover:bg-emerald-700"
+                className="gap-1"
                 onClick={() => onApprove?.(card)}
               >
                 <CheckCircle2 className="h-3.5 w-3.5" /> Approve
@@ -166,7 +166,7 @@ export function CardDetailDrawer({ card, open, onOpenChange, onApprove, onReject
             <RefreshCw className="h-3 w-3" /> Re-run Policy
           </Button>
           {card.status === 'approved' && (
-            <Button size="sm" className="gap-1 bg-purple-600 hover:bg-purple-700">
+            <Button size="sm" className="gap-1">
               <Rocket className="h-3.5 w-3.5" /> Publish
             </Button>
           )}
