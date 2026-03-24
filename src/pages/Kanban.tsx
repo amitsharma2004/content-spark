@@ -122,6 +122,21 @@ export default function Kanban() {
     queryClient.invalidateQueries({ queryKey: ['kanban-cards'] });
   };
 
+  const handleRunAgent = (card: KanbanCard) => {
+    if (card.status === 'todo') {
+      runAgent(card, 'search');
+    } else if (card.status === 'searching') {
+      runAgent(card, 'content');
+    } else if (card.status === 'drafting') {
+      runAgent(card, 'policy');
+    }
+  };
+
+  const handleRerunAgent = (card: KanbanCard, agentType: 'search' | 'content' | 'policy') => {
+    runAgent(card, agentType);
+    setDrawerOpen(false);
+  };
+
   const handleViewCard = (card: KanbanCard) => {
     setSelectedCard(card);
     setDrawerOpen(true);
