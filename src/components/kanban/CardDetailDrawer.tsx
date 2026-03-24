@@ -14,6 +14,7 @@ interface Props {
   onOpenChange: (open: boolean) => void;
   onApprove?: (card: KanbanCard) => void;
   onReject?: (card: KanbanCard) => void;
+  onRerunAgent?: (card: KanbanCard, agentType: 'search' | 'content' | 'policy') => void;
   isAdmin?: boolean;
 }
 
