@@ -18,7 +18,7 @@ interface Props {
   isAdmin?: boolean;
 }
 
-export function CardDetailDrawer({ card, open, onOpenChange, onApprove, onReject, isAdmin }: Props) {
+export function CardDetailDrawer({ card, open, onOpenChange, onApprove, onReject, onRerunAgent, isAdmin }: Props) {
   const [editableContent, setEditableContent] = useState('');
 
   useEffect(() => {
