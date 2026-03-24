@@ -185,6 +185,7 @@ export default function Kanban() {
                 emoji={col.emoji}
                 cards={getColumnCards(col.id)}
                 onViewCard={handleViewCard}
+                onRunAgent={handleRunAgent}
                 teamMembers={teamMembers}
               />
             ))}
