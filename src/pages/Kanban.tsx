@@ -215,6 +215,7 @@ export default function Kanban() {
         onOpenChange={setDrawerOpen}
         onApprove={handleApprove}
         onReject={handleReject}
+        onRerunAgent={handleRerunAgent}
         isAdmin={isAdmin}
       />
     </div>
