@@ -14,10 +14,11 @@ interface Props {
   onOpenChange: (open: boolean) => void;
   onApprove?: (card: KanbanCard) => void;
   onReject?: (card: KanbanCard) => void;
+  onRerunAgent?: (card: KanbanCard, agentType: 'search' | 'content' | 'policy') => void;
   isAdmin?: boolean;
 }
 
-export function CardDetailDrawer({ card, open, onOpenChange, onApprove, onReject, isAdmin }: Props) {
+export function CardDetailDrawer({ card, open, onOpenChange, onApprove, onReject, onRerunAgent, isAdmin }: Props) {
   const [editableContent, setEditableContent] = useState('');
 
   useEffect(() => {
@@ -155,8 +156,14 @@ export function CardDetailDrawer({ card, open, onOpenChange, onApprove, onReject
               </Button>
             </>
           )}
-          <Button size="sm" variant="outline" className="gap-1 text-xs">
-            <RefreshCw className="h-3 w-3" /> Re-run Agent
+          <Button size="sm" variant="outline" className="gap-1 text-xs" onClick={() => onRerunAgent?.(card, 'search')}>
+            <RefreshCw className="h-3 w-3" /> Re-run Search
+          </Button>
+          <Button size="sm" variant="outline" className="gap-1 text-xs" onClick={() => onRerunAgent?.(card, 'content')}>
+            <RefreshCw className="h-3 w-3" /> Re-run Content
+          </Button>
+          <Button size="sm" variant="outline" className="gap-1 text-xs" onClick={() => onRerunAgent?.(card, 'policy')}>
+            <RefreshCw className="h-3 w-3" /> Re-run Policy
           </Button>
           {card.status === 'approved' && (
             <Button size="sm" className="gap-1 bg-purple-600 hover:bg-purple-700">
