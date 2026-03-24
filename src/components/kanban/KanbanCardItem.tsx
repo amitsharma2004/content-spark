@@ -27,7 +27,6 @@ export function KanbanCardItem({ card, onView, onRunAgent, teamMembers }: Props)
   const isAgentActive = !!agentInfo;
   const assignee = teamMembers?.find((m) => m.id === card.assigned_to);
 
-  // Progress: 3 agents — search, content, policy
   const agentsDone = [
     !!card.search_result,
     !!card.draft_content,
@@ -36,12 +35,12 @@ export function KanbanCardItem({ card, onView, onRunAgent, teamMembers }: Props)
 
   const borderClass =
     card.status === 'rejected'
-      ? 'border-l-2 border-l-red-500'
+      ? 'border-l-[3px] border-l-destructive'
       : card.status === 'approved'
-      ? 'border-l-2 border-l-emerald-500'
+      ? 'border-l-[3px] border-l-chart-3'
       : card.status === 'published'
-      ? 'border-l-2 border-l-purple-500'
-      : 'border-l-2 border-l-transparent';
+      ? 'border-l-[3px] border-l-primary'
+      : 'border-l-[3px] border-l-transparent';
 
   return (
     <div
@@ -50,14 +49,14 @@ export function KanbanCardItem({ card, onView, onRunAgent, teamMembers }: Props)
       {...attributes}
       {...listeners}
       className={cn(
-        'group cursor-grab rounded-lg bg-[hsl(var(--kanban-card))] p-3 shadow-md transition-all hover:shadow-lg active:cursor-grabbing',
+        'group cursor-grab rounded-lg bg-card border border-border p-3 shadow-card transition-all hover:shadow-card-hover active:cursor-grabbing',
         borderClass,
-        isDragging && 'opacity-50 shadow-xl ring-2 ring-primary/40'
+        isDragging && 'opacity-50 shadow-elevated ring-2 ring-primary/20'
       )}
     >
       {/* Title + Platform */}
       <div className="mb-2 flex items-start justify-between gap-2">
-        <h4 className="text-sm font-semibold text-foreground leading-tight line-clamp-2">
+        <h4 className="text-[13px] font-semibold text-foreground leading-tight line-clamp-2">
           {card.title}
         </h4>
         <span className={cn('shrink-0 rounded px-1.5 py-0.5 text-[10px] font-medium', PLATFORM_CONFIG[card.platform].color)}>
@@ -81,7 +80,7 @@ export function KanbanCardItem({ card, onView, onRunAgent, teamMembers }: Props)
       {/* Published badge */}
       {card.status === 'published' && (
         <div className="mt-2">
-          <span className="inline-block rounded-full bg-gradient-to-r from-purple-600 to-violet-500 px-2 py-0.5 text-[10px] font-semibold text-white">
+          <span className="inline-block rounded-full bg-primary px-2 py-0.5 text-[10px] font-semibold text-primary-foreground">
             🚀 Published
           </span>
         </div>
@@ -94,7 +93,7 @@ export function KanbanCardItem({ card, onView, onRunAgent, teamMembers }: Props)
             key={i}
             className={cn(
               'h-1 flex-1 rounded-full transition-colors',
-              i < agentsDone ? 'bg-primary' : 'bg-muted'
+              i < agentsDone ? 'bg-primary' : 'bg-border'
             )}
           />
         ))}
@@ -114,10 +113,10 @@ export function KanbanCardItem({ card, onView, onRunAgent, teamMembers }: Props)
             className={cn(
               'text-[10px] font-bold',
               card.policy_score >= 75
-                ? 'text-emerald-400'
+                ? 'text-chart-3'
                 : card.policy_score >= 60
-                ? 'text-amber-400'
-                : 'text-red-400'
+                ? 'text-accent'
+                : 'text-destructive'
             )}
           >
             {card.policy_score}/100
@@ -146,7 +145,7 @@ export function KanbanCardItem({ card, onView, onRunAgent, teamMembers }: Props)
           <Eye className="mr-1 h-3 w-3" /> View
         </Button>
         {card.status === 'approved' && (
-          <Button size="sm" variant="ghost" className="h-6 px-2 text-[10px] text-purple-400">
+          <Button size="sm" variant="ghost" className="h-6 px-2 text-[10px] text-primary">
             <Rocket className="mr-1 h-3 w-3" /> Publish
           </Button>
         )}

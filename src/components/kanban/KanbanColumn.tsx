@@ -20,15 +20,15 @@ export function KanbanColumn({ id, label, emoji, cards, onViewCard, onRunAgent, 
   return (
     <div
       className={cn(
-        'flex h-full w-[280px] shrink-0 flex-col rounded-xl bg-[hsl(var(--kanban-surface))] transition-colors',
-        isOver && 'ring-2 ring-primary/40'
+        'flex h-full w-[280px] shrink-0 flex-col rounded-xl bg-muted/50 border border-border/60 transition-colors',
+        isOver && 'ring-2 ring-primary/30 bg-primary/5'
       )}
     >
       {/* Column header */}
-      <div className="flex items-center gap-2 px-3 py-3 border-b border-border/30">
+      <div className="flex items-center gap-2 px-3 py-3 border-b border-border/40">
         <span className="text-base">{emoji}</span>
-        <h3 className="text-sm font-semibold text-foreground">{label}</h3>
-        <span className="ml-auto rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
+        <h3 className="text-[13px] font-semibold text-foreground">{label}</h3>
+        <span className="ml-auto rounded-full bg-background border border-border px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
           {cards.length}
         </span>
       </div>
@@ -47,7 +47,7 @@ export function KanbanColumn({ id, label, emoji, cards, onViewCard, onRunAgent, 
           ))}
         </SortableContext>
         {cards.length === 0 && (
-          <div className="flex h-20 items-center justify-center rounded-lg border border-dashed border-border/30 text-xs text-muted-foreground">
+          <div className="flex h-20 items-center justify-center rounded-lg border border-dashed border-border text-xs text-muted-foreground">
             Drop cards here
           </div>
         )}
