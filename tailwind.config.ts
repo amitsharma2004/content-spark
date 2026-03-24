@@ -19,8 +19,9 @@ export default {
     },
     extend: {
       fontFamily: {
-        display: ['"Space Grotesk"', 'sans-serif'],
-        body: ['Inter', 'sans-serif'],
+        display: ['"Playfair Display"', 'serif'],
+        body: ['"DM Sans"', 'sans-serif'],
+        mono: ['"JetBrains Mono"', 'monospace'],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -78,6 +79,11 @@ export default {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+      },
+      boxShadow: {
+        'card': '0 1px 3px 0 rgb(0 0 0 / 0.04), 0 1px 2px -1px rgb(0 0 0 / 0.04)',
+        'card-hover': '0 4px 12px -2px rgb(0 0 0 / 0.08), 0 2px 4px -2px rgb(0 0 0 / 0.04)',
+        'elevated': '0 8px 24px -6px rgb(0 0 0 / 0.1)',
       },
       keyframes: {
         "accordion-down": {
