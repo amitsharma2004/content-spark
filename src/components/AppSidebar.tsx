@@ -1,5 +1,5 @@
 import { NavLink, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Sparkles, Calendar, ListTodo, History, Fingerprint, Users, Zap, LogOut, BarChart3, Kanban } from 'lucide-react';
+import { LayoutDashboard, Sparkles, Calendar, ListTodo, History, Fingerprint, Users, LogOut, BarChart3, Kanban } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -20,19 +20,19 @@ export function AppSidebar() {
   const { signOut, user } = useAuth();
 
   return (
-    <aside className="fixed left-0 top-0 z-40 flex h-screen w-64 flex-col border-r border-sidebar-border bg-sidebar">
+    <aside className="fixed left-0 top-0 z-40 flex h-screen w-60 flex-col border-r border-sidebar-border bg-sidebar">
       {/* Logo */}
-      <div className="flex h-16 items-center gap-3 px-6">
-        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary">
-          <Zap className="h-5 w-5 text-primary-foreground" />
+      <div className="flex h-16 items-center gap-2.5 px-5">
+        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground font-display text-sm font-bold">
+          C
         </div>
-        <span className="font-display text-lg font-bold text-foreground">
+        <span className="font-display text-lg font-bold text-foreground tracking-tight">
           ContentForge
         </span>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 space-y-1 px-3 pt-4">
+      <nav className="flex-1 space-y-0.5 px-3 pt-2">
         {navItems.map((item) => {
           const isActive = location.pathname === item.to;
           return (
@@ -40,13 +40,13 @@ export function AppSidebar() {
               key={item.to}
               to={item.to}
               className={cn(
-                'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200',
+                'flex items-center gap-2.5 rounded-lg px-3 py-2 text-[13px] font-medium transition-colors',
                 isActive
-                  ? 'bg-primary/10 text-primary shadow-sm'
+                  ? 'bg-primary/8 text-primary'
                   : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
               )}
             >
-              <item.icon className={cn('h-5 w-5', isActive && 'drop-shadow-[0_0_6px_hsl(160,84%,39%)]')} />
+              <item.icon className="h-[18px] w-[18px]" />
               {item.label}
             </NavLink>
           );
@@ -54,7 +54,7 @@ export function AppSidebar() {
       </nav>
 
       {/* Bottom */}
-      <div className="border-t border-sidebar-border p-3 space-y-1">
+      <div className="border-t border-sidebar-border p-3 space-y-0.5">
         {user && (
           <div className="px-3 py-1.5 text-xs text-muted-foreground truncate">
             {user.email}
@@ -62,9 +62,9 @@ export function AppSidebar() {
         )}
         <button
           onClick={signOut}
-          className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-sidebar-foreground transition-colors hover:bg-sidebar-accent"
+          className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-[13px] font-medium text-sidebar-foreground transition-colors hover:bg-sidebar-accent"
         >
-          <LogOut className="h-5 w-5" />
+          <LogOut className="h-[18px] w-[18px]" />
           Sign Out
         </button>
       </div>

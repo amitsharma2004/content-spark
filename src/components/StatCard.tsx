@@ -15,19 +15,19 @@ export function StatCard({ label, value, icon: Icon, trend, accentClass }: StatC
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="glass rounded-xl p-5"
+      className="rounded-xl border border-border bg-card p-5 shadow-card transition-shadow hover:shadow-card-hover"
     >
       <div className="flex items-start justify-between">
         <div>
-          <p className="text-sm text-muted-foreground">{label}</p>
-          <p className="mt-1 font-display text-3xl font-bold text-foreground">{value}</p>
+          <p className="text-[13px] text-muted-foreground">{label}</p>
+          <p className="mt-1.5 font-display text-3xl font-bold text-foreground">{value}</p>
           {trend && (
             <p className={cn('mt-1 text-xs font-medium', accentClass || 'text-primary')}>
               {trend}
             </p>
           )}
         </div>
-        <div className={cn('rounded-lg p-2.5', accentClass ? 'bg-accent/10' : 'bg-primary/10')}>
+        <div className={cn('rounded-lg p-2.5', accentClass ? 'bg-muted' : 'bg-primary/8')}>
           <Icon className={cn('h-5 w-5', accentClass || 'text-primary')} />
         </div>
       </div>
