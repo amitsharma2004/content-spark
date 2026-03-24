@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useUserRole } from '@/hooks/useUserRole';
+import { useRunAgent } from '@/hooks/useRunAgent';
 import { Button } from '@/components/ui/button';
 import { KanbanColumn } from '@/components/kanban/KanbanColumn';
 import { KanbanCardItem } from '@/components/kanban/KanbanCardItem';
@@ -17,6 +18,7 @@ import { toast } from 'sonner';
 export default function Kanban() {
   const { user } = useAuth();
   const { isAdmin } = useUserRole();
+  const { runAgent, runningCardId } = useRunAgent();
   const queryClient = useQueryClient();
   const [createOpen, setCreateOpen] = useState(false);
   const [selectedCard, setSelectedCard] = useState<KanbanCard | null>(null);
