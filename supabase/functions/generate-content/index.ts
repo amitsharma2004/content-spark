@@ -143,7 +143,7 @@ Guidelines:
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            model: "google/gemini-2.0-flash-exp",
+            model: "google/gemini-2.5-flash",
             messages: [
               { role: "system", content: systemPrompt },
               { role: "user", content: `Generate bulk social media content about: "${topic}"` },
