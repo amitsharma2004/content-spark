@@ -143,7 +143,7 @@ Guidelines:
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            model: "google/gemini-2.0-flash-exp",
+            model: "google/gemini-2.5-flash",
             messages: [
               { role: "system", content: systemPrompt },
               { role: "user", content: `Generate bulk social media content about: "${topic}"` },
@@ -152,7 +152,7 @@ Guidelines:
           }),
         })
       : await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${GOOGLE_API_KEY}`,
+          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GOOGLE_API_KEY}`,
           {
             method: "POST",
             headers: {

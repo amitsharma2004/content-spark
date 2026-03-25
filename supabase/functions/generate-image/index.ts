@@ -40,13 +40,13 @@ serve(async (req) => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            model: "google/gemini-2.0-flash-exp",
+            model: "google/gemini-3-pro-image-preview",
             messages: [{ role: "user", content: prompt }],
             modalities: ["image", "text"],
           }),
         })
       : await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${GOOGLE_API_KEY}`,
+          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GOOGLE_API_KEY}`,
           {
             method: "POST",
             headers: {
