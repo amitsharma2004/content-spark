@@ -11,8 +11,10 @@ export function useRunAgent() {
   const runAgent = async (card: KanbanCard, agentType: 'search' | 'content' | 'policy' = 'search') => {
     setRunningCardId(card.id);
 
-    const fnName = agentType === 'search'
-      ? 'run-search-agent'
+    // Use the new LangGraph pipeline for full runs, fallback to individual agents for reruns
+    const isFullPipeline = agentType === 'search';
+    const fnName = isFullPipeline
+      ? 'run-pipeline'
       : agentType === 'content'
       ? 'run-content-agent'
       : 'run-policy-agent';
@@ -23,7 +25,6 @@ export function useRunAgent() {
       });
 
       if (error) {
-        // Check for rate limit / payment errors
         const msg = error.message || '';
         if (msg.includes('429') || msg.includes('rate')) {
           toast.error('Rate limited — please try again in a moment.');
@@ -35,7 +36,16 @@ export function useRunAgent() {
         return;
       }
 
-      toast.success(`${agentType === 'search' ? 'Search' : agentType === 'content' ? 'Content' : 'Policy'} Agent started! The pipeline will run automatically.`);
+      if (isFullPipeline) {
+        const retries = data?.retries || 0;
+        const score = data?.policyScore || 0;
+        toast.success(
+          `Pipeline complete! Score: ${score}/100${retries > 1 ? ` (${retries - 1} auto-retries)` : ''}`
+        );
+      } else {
+        toast.success(`${agentType === 'content' ? 'Content' : 'Policy'} Agent completed!`);
+      }
+
       queryClient.invalidateQueries({ queryKey: ['kanban-cards'] });
     } catch (err) {
       console.error('Run agent error:', err);
