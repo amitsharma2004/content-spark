@@ -209,6 +209,7 @@ export type Database = {
           id: string
           platform: string
           post: string
+          search_vector: unknown
           style_tags: string[] | null
           tone: string
           topic: string
@@ -222,6 +223,7 @@ export type Database = {
           id?: string
           platform?: string
           post: string
+          search_vector?: unknown
           style_tags?: string[] | null
           tone: string
           topic: string
@@ -235,6 +237,7 @@ export type Database = {
           id?: string
           platform?: string
           post?: string
+          search_vector?: unknown
           style_tags?: string[] | null
           tone?: string
           topic?: string
@@ -324,23 +327,41 @@ export type Database = {
         }
         Returns: boolean
       }
-      match_posts: {
-        Args: {
-          filter_platform?: string
-          filter_tone?: string
-          match_count?: number
-          query_embedding: string
-        }
-        Returns: {
-          id: string
-          platform: string
-          post: string
-          similarity: number
-          style_tags: string[]
-          tone: string
-          topic: string
-        }[]
-      }
+      match_posts:
+        | {
+            Args: {
+              filter_platform?: string
+              filter_tone?: string
+              match_count?: number
+              query_embedding: string
+            }
+            Returns: {
+              id: string
+              platform: string
+              post: string
+              similarity: number
+              style_tags: string[]
+              tone: string
+              topic: string
+            }[]
+          }
+        | {
+            Args: {
+              filter_platform?: string
+              filter_tone?: string
+              match_count?: number
+              query_text: string
+            }
+            Returns: {
+              id: string
+              platform: string
+              post: string
+              similarity: number
+              style_tags: string[]
+              tone: string
+              topic: string
+            }[]
+          }
     }
     Enums: {
       app_role: "editor" | "admin"

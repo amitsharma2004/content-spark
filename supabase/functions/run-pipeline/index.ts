@@ -112,47 +112,21 @@ async function ragRetrievalNode(state: PipelineStateType): Promise<Partial<Pipel
   console.log("[LangGraph] RAG Retrieval running for:", state.topic);
 
   try {
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) return { ragExamples: "" };
-
-    const queryText = `${state.tone} ${state.topic} ${state.platform}`;
-
-    // Generate query embedding
-    const embResponse = await fetch("https://ai.gateway.lovable.dev/v1/embeddings", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "openai/text-embedding-3-small",
-        input: queryText,
-      }),
-    });
-
-    if (!embResponse.ok) {
-      console.warn("RAG embedding failed:", embResponse.status);
-      return { ragExamples: "" };
-    }
-
-    const embData = await embResponse.json();
-    const queryEmbedding = embData.data?.[0]?.embedding;
-    if (!queryEmbedding) return { ragExamples: "" };
-
-    // Query vector DB
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, serviceKey);
 
+    const queryText = `${state.tone} ${state.topic} ${state.platform}`;
+
     const { data: matches, error } = await supabase.rpc("match_posts", {
-      query_embedding: `[${queryEmbedding.join(",")}]`,
+      query_text: queryText,
       match_count: 5,
       filter_tone: state.tone,
       filter_platform: state.platform,
     });
 
     if (error || !matches || matches.length === 0) {
-      console.log("[RAG] No matching examples found");
+      console.log("[RAG] No matching examples found", error?.message);
       return { ragExamples: "" };
     }
 
@@ -252,8 +226,8 @@ async function contentAgentNode(state: PipelineStateType): Promise<Partial<Pipel
     ? `\n\n📚 EXAMPLE POSTS (use as style reference — do NOT copy them):\n${state.ragExamples}\n\nUse these examples to match the voice, style, and format. Create something original inspired by them.`
     : "";
 
-  const prompt = ChatPromptTemplate.fromMessages([
-    ["system", `You are an expert content writer. Using the research provided, write compelling content for {platform} in {tone} tone.
+  // Build the system message with RAG and feedback baked in (not as template vars)
+  const systemMsg = `You are an expert content writer. Using the research provided, write compelling content for {platform} in {tone} tone.
 
 Format requirements for {platform}:
 {formatGuide}
@@ -263,7 +237,10 @@ Structure your output as:
 [Main Body] - Core content
 [CTA] - Call to action
 
-Write naturally and engagingly. Avoid generic filler.{ragContext}{feedbackContext}`],
+Write naturally and engagingly. Avoid generic filler.${ragContext}${feedbackContext}`;
+
+  const prompt = ChatPromptTemplate.fromMessages([
+    ["system", systemMsg],
     ["human", `Topic: "{topic}"
 Title: "{title}"
 
@@ -279,7 +256,6 @@ Research notes:
     tone: state.tone,
     formatGuide: platformFormats[state.platform] || platformFormats.blog,
     searchResult: state.searchResult || "No research available.",
-    feedbackContext,
   });
 
   return { draftContent: result.content as string };
