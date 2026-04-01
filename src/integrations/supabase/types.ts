@@ -201,6 +201,48 @@ export type Database = {
           },
         ]
       }
+      post_embeddings: {
+        Row: {
+          combined_text: string
+          created_at: string
+          embedding: string | null
+          id: string
+          platform: string
+          post: string
+          style_tags: string[] | null
+          tone: string
+          topic: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          combined_text: string
+          created_at?: string
+          embedding?: string | null
+          id?: string
+          platform?: string
+          post: string
+          style_tags?: string[] | null
+          tone: string
+          topic: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          combined_text?: string
+          created_at?: string
+          embedding?: string | null
+          id?: string
+          platform?: string
+          post?: string
+          style_tags?: string[] | null
+          tone?: string
+          topic?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
@@ -281,6 +323,23 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      match_posts: {
+        Args: {
+          filter_platform?: string
+          filter_tone?: string
+          match_count?: number
+          query_embedding: string
+        }
+        Returns: {
+          id: string
+          platform: string
+          post: string
+          similarity: number
+          style_tags: string[]
+          tone: string
+          topic: string
+        }[]
       }
     }
     Enums: {
