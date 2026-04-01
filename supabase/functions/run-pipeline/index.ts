@@ -247,6 +247,11 @@ async function contentAgentNode(state: PipelineStateType): Promise<Partial<Pipel
     ? `\n\n⚠️ PREVIOUS ATTEMPT FEEDBACK (you MUST address these issues):\n${state.policyFeedback.map(f => `- ${f}`).join("\n")}\n\nSuggested edits: ${state.suggestedEdits}`
     : "";
 
+  // Build RAG context from retrieved examples
+  const ragContext = state.ragExamples
+    ? `\n\n📚 EXAMPLE POSTS (use as style reference — do NOT copy them):\n${state.ragExamples}\n\nUse these examples to match the voice, style, and format. Create something original inspired by them.`
+    : "";
+
   const prompt = ChatPromptTemplate.fromMessages([
     ["system", `You are an expert content writer. Using the research provided, write compelling content for {platform} in {tone} tone.
 
@@ -258,7 +263,7 @@ Structure your output as:
 [Main Body] - Core content
 [CTA] - Call to action
 
-Write naturally and engagingly. Avoid generic filler.{feedbackContext}`],
+Write naturally and engagingly. Avoid generic filler.{ragContext}{feedbackContext}`],
     ["human", `Topic: "{topic}"
 Title: "{title}"
 
