@@ -23,6 +23,7 @@ const PipelineState = Annotation.Root({
   tone: Annotation<string>,
   userId: Annotation<string>,
   searchResult: Annotation<string>({ default: () => "", reducer: (_, v) => v }),
+  ragExamples: Annotation<string>({ default: () => "", reducer: (_, v) => v }),
   draftContent: Annotation<string>({ default: () => "", reducer: (_, v) => v }),
   policyScore: Annotation<number>({ default: () => 0, reducer: (_, v) => v }),
   policyFeedback: Annotation<string[]>({ default: () => [], reducer: (_, v) => v }),
