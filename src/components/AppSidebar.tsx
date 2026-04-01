@@ -1,5 +1,5 @@
 import { NavLink, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Sparkles, Calendar, ListTodo, History, Fingerprint, Users, LogOut, BarChart3, Kanban } from 'lucide-react';
+import { LayoutDashboard, Sparkles, Calendar, ListTodo, History, Fingerprint, Users, LogOut, BarChart3, Kanban, Database } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -12,6 +12,7 @@ const navItems = [
   { to: '/queue', icon: ListTodo, label: 'Queue' },
   { to: '/history', icon: History, label: 'History' },
   { to: '/brand', icon: Fingerprint, label: 'Brand DNA' },
+  { to: '/rag-dataset', icon: Database, label: 'RAG Dataset' },
   { to: '/team', icon: Users, label: 'Team' },
 ];
 

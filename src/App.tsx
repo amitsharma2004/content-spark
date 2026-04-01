@@ -14,6 +14,7 @@ import Analytics from "./pages/Analytics";
 import BrandProfile from "./pages/BrandProfile";
 import TeamManagement from "./pages/TeamManagement";
 import Kanban from "./pages/Kanban";
+import RagDataset from "./pages/RagDataset";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 
@@ -37,6 +38,7 @@ function ProtectedRoutes() {
         <Route path="brand" element={<BrandProfile />} />
         <Route path="team" element={<TeamManagement />} />
         <Route path="kanban" element={<Kanban />} />
+        <Route path="rag-dataset" element={<RagDataset />} />
       </Route>
       <Route path="*" element={<NotFound />} />
     </Routes>
