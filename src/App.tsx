@@ -38,6 +38,7 @@ function ProtectedRoutes() {
         <Route path="brand" element={<BrandProfile />} />
         <Route path="team" element={<TeamManagement />} />
         <Route path="kanban" element={<Kanban />} />
+        <Route path="rag-dataset" element={<RagDataset />} />
       </Route>
       <Route path="*" element={<NotFound />} />
     </Routes>

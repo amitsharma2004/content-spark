@@ -12,6 +12,7 @@ const navItems = [
   { to: '/queue', icon: ListTodo, label: 'Queue' },
   { to: '/history', icon: History, label: 'History' },
   { to: '/brand', icon: Fingerprint, label: 'Brand DNA' },
+  { to: '/rag-dataset', icon: Database, label: 'RAG Dataset' },
   { to: '/team', icon: Users, label: 'Team' },
 ];
 
