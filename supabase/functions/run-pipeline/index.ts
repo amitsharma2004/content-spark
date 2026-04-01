@@ -367,10 +367,12 @@ function routeAfterPolicy(state: PipelineStateType): string {
 function buildPipelineGraph() {
   const graph = new StateGraph(PipelineState)
     .addNode("search_agent", searchAgentNode)
+    .addNode("rag_retrieval", ragRetrievalNode)
     .addNode("content_agent", contentAgentNode)
     .addNode("policy_agent", policyAgentNode)
     .addEdge(START, "search_agent")
-    .addEdge("search_agent", "content_agent")
+    .addEdge("search_agent", "rag_retrieval")
+    .addEdge("rag_retrieval", "content_agent")
     .addEdge("content_agent", "policy_agent")
     .addConditionalEdges("policy_agent", routeAfterPolicy, {
       approved: END,
