@@ -226,8 +226,8 @@ async function contentAgentNode(state: PipelineStateType): Promise<Partial<Pipel
     ? `\n\n📚 EXAMPLE POSTS (use as style reference — do NOT copy them):\n${state.ragExamples}\n\nUse these examples to match the voice, style, and format. Create something original inspired by them.`
     : "";
 
-  const prompt = ChatPromptTemplate.fromMessages([
-    ["system", `You are an expert content writer. Using the research provided, write compelling content for {platform} in {tone} tone.
+  // Build the system message with RAG and feedback baked in (not as template vars)
+  const systemMsg = `You are an expert content writer. Using the research provided, write compelling content for {platform} in {tone} tone.
 
 Format requirements for {platform}:
 {formatGuide}
@@ -237,7 +237,10 @@ Structure your output as:
 [Main Body] - Core content
 [CTA] - Call to action
 
-Write naturally and engagingly. Avoid generic filler.{ragContext}{feedbackContext}`],
+Write naturally and engagingly. Avoid generic filler.${ragContext}${feedbackContext}`;
+
+  const prompt = ChatPromptTemplate.fromMessages([
+    ["system", systemMsg],
     ["human", `Topic: "{topic}"
 Title: "{title}"
 
@@ -253,7 +256,6 @@ Research notes:
     tone: state.tone,
     formatGuide: platformFormats[state.platform] || platformFormats.blog,
     searchResult: state.searchResult || "No research available.",
-    feedbackContext,
   });
 
   return { draftContent: result.content as string };
