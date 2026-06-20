@@ -86,7 +86,7 @@ const Generate = () => {
         });
       });
 
-      // Persist to database
+      // Persist to database and use the returned real UUIDs
       if (user) {
         const rows = items.map((item) => ({
           user_id: user.id,
@@ -96,19 +96,31 @@ const Generate = () => {
           status: item.status,
         }));
 
-        const { error: insertError } = await supabase
+        const { data: inserted, error: insertError } = await supabase
           .from('generated_content')
-          .insert(rows);
+          .insert(rows)
+          .select('id, platform, content, topic, status, created_at');
 
         if (insertError) {
           console.error('Failed to save content:', insertError);
           toast.error('Content generated but failed to save to history');
+          setGenerated(items);
         } else {
           queryClient.invalidateQueries({ queryKey: ['generated-content'] });
+          const withRealIds: ContentItem[] = (inserted || []).map((r: any) => ({
+            id: r.id,
+            platform: r.platform,
+            content: r.content,
+            topic: r.topic,
+            status: r.status,
+            createdAt: new Date(r.created_at),
+          }));
+          setGenerated(withRealIds);
         }
+      } else {
+        setGenerated(items);
       }
 
-      setGenerated(items);
       toast.success(`Generated ${items.length} pieces of content with AI!`);
     } catch (err: any) {
       console.error('Generation error:', err);
