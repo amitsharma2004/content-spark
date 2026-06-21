@@ -26,8 +26,15 @@ serve(async (req) => {
     // Fetch brand profile for the card's user
     const { data: brandProfile } = await supabase.from("brand_profiles").select("*").eq("user_id", card.user_id).maybeSingle();
 
+    const GROQ_API_KEY = Deno.env.get("GROQ_API_KEY");
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
+    if (!GROQ_API_KEY && !LOVABLE_API_KEY) {
+      throw new Error("Neither GROQ_API_KEY nor LOVABLE_API_KEY is configured");
+    }
+
+    const apiUrl = GROQ_API_KEY ? "https://api.groq.com/openai/v1/chat/completions" : "https://ai.gateway.lovable.dev/v1/chat/completions";
+    const apiKey = GROQ_API_KEY || LOVABLE_API_KEY;
+    const model = GROQ_API_KEY ? "llama-3.3-70b-versatile" : "google/gemini-3-flash-preview";
 
     const brandContext = brandProfile
       ? `Brand: ${brandProfile.company_name || "Unknown"}\nVoice: ${brandProfile.brand_voice || "Professional"}\nBio: ${brandProfile.company_bio || "N/A"}`
@@ -56,11 +63,11 @@ Score guidelines:
 If score >= 75, set approved=true and provide polished final_content.
 If score < 75, set approved=false and provide detailed feedback and suggested_edits.`;
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const response = await fetch(apiUrl, {
       method: "POST",
-      headers: { Authorization: `Bearer ${LOVABLE_API_KEY}`, "Content-Type": "application/json" },
+      headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
       body: JSON.stringify({
-        model: "google/gemini-3-flash-preview",
+        model: model,
         messages: [
           { role: "system", content: systemPrompt },
           { role: "user", content: `Review this ${card.platform} content (${card.tone} tone):\n\n${card.draft_content || "No draft available."}` },

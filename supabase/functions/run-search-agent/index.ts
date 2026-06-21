@@ -24,8 +24,15 @@ serve(async (req) => {
     // Update status to searching
     await supabase.from("kanban_cards").update({ status: "searching", updated_at: new Date().toISOString() }).eq("id", card_id);
 
+    const GROQ_API_KEY = Deno.env.get("GROQ_API_KEY");
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
+    if (!GROQ_API_KEY && !LOVABLE_API_KEY) {
+      throw new Error("Neither GROQ_API_KEY nor LOVABLE_API_KEY is configured");
+    }
+
+    const apiUrl = GROQ_API_KEY ? "https://api.groq.com/openai/v1/chat/completions" : "https://ai.gateway.lovable.dev/v1/chat/completions";
+    const apiKey = GROQ_API_KEY || LOVABLE_API_KEY;
+    const model = GROQ_API_KEY ? "llama-3.3-70b-versatile" : "google/gemini-3-flash-preview";
 
     const systemPrompt = `You are a research specialist. Given a content topic, find the most relevant angles, trending subtopics, key statistics, target audience pain points, and competitor content gaps. Return structured research notes with:
 [Key Angles] - 3-5 unique angles to approach this topic
@@ -36,11 +43,11 @@ serve(async (req) => {
 
 Format the output clearly with headers and bullet points. The content is for ${card.platform} platform in ${card.tone} tone.`;
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const response = await fetch(apiUrl, {
       method: "POST",
-      headers: { Authorization: `Bearer ${LOVABLE_API_KEY}`, "Content-Type": "application/json" },
+      headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
       body: JSON.stringify({
-        model: "google/gemini-3-flash-preview",
+        model: model,
         messages: [
           { role: "system", content: systemPrompt },
           { role: "user", content: `Research the following topic for a ${card.platform} post: "${card.topic}". Title: "${card.title}"` },

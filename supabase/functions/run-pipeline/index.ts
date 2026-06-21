@@ -39,8 +39,20 @@ type PipelineStateType = typeof PipelineState.State;
 // ---------- LLM Setup ----------
 
 function createLLM() {
+  const GROQ_API_KEY = Deno.env.get("GROQ_API_KEY");
+  if (GROQ_API_KEY) {
+    return new ChatOpenAI({
+      openAIApiKey: GROQ_API_KEY,
+      modelName: "llama-3.3-70b-versatile",
+      configuration: {
+        baseURL: "https://api.groq.com/openai/v1",
+      },
+      temperature: 0.7,
+    });
+  }
+
   const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-  if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
+  if (!LOVABLE_API_KEY) throw new Error("Neither GROQ_API_KEY nor LOVABLE_API_KEY is configured");
 
   return new ChatOpenAI({
     openAIApiKey: LOVABLE_API_KEY,

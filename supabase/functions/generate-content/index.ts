@@ -58,15 +58,16 @@ serve(async (req) => {
       });
     }
 
-    // Try Lovable Gateway first, fallback to Google API
+    // Try Groq API, fallback to Lovable Gateway or Google API
+    const GROQ_API_KEY = Deno.env.get("GROQ_API_KEY");
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     const GOOGLE_API_KEY = Deno.env.get("GOOGLE_API_KEY");
     
-    if (!LOVABLE_API_KEY && !GOOGLE_API_KEY) {
-      throw new Error("Either LOVABLE_API_KEY or GOOGLE_API_KEY must be configured");
+    if (!GROQ_API_KEY && !LOVABLE_API_KEY && !GOOGLE_API_KEY) {
+      throw new Error("Neither GROQ_API_KEY, LOVABLE_API_KEY, nor GOOGLE_API_KEY is configured");
     }
     
-    const useLovableGateway = !!LOVABLE_API_KEY;
+    const useOpenAiCompatible = !!GROQ_API_KEY || !!LOVABLE_API_KEY;
 
     // Fetch brand profile for the calling user
     let brandContext = "";
@@ -135,44 +136,64 @@ Guidelines:
 - Tailor everything specifically to the topic provided.
 - IMPORTANT: Maintain the specified tone consistently across ALL content.${brandContext ? "\n- CRITICAL: The content MUST sound like the brand described above. Match their style, terminology, and voice." : ""}`;
 
-    const response = useLovableGateway
-      ? await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    let response;
+    if (GROQ_API_KEY) {
+      response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${GROQ_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "llama-3.3-70b-versatile",
+          messages: [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: `Generate bulk social media content about: "${topic}"` },
+          ],
+          response_format: { type: "json_object" },
+          temperature: 0.9,
+        }),
+      });
+    } else if (LOVABLE_API_KEY) {
+      response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${LOVABLE_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "google/gemini-2.5-flash",
+          messages: [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: `Generate bulk social media content about: "${topic}"` },
+          ],
+          stream: false,
+        }),
+      });
+    } else {
+      response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GOOGLE_API_KEY}`,
+        {
           method: "POST",
           headers: {
-            Authorization: `Bearer ${LOVABLE_API_KEY}`,
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            model: "google/gemini-2.5-flash",
-            messages: [
-              { role: "system", content: systemPrompt },
-              { role: "user", content: `Generate bulk social media content about: "${topic}"` },
-            ],
-            stream: false,
+            contents: [{
+              parts: [
+                { text: systemPrompt },
+                { text: `Generate bulk social media content about: "${topic}"` }
+              ]
+            }],
+            generationConfig: {
+              temperature: 0.9,
+              topK: 40,
+              topP: 0.95,
+            }
           }),
-        })
-      : await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GOOGLE_API_KEY}`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              contents: [{
-                parts: [
-                  { text: systemPrompt },
-                  { text: `Generate bulk social media content about: "${topic}"` }
-                ]
-              }],
-              generationConfig: {
-                temperature: 0.9,
-                topK: 40,
-                topP: 0.95,
-              }
-            }),
-          }
-        );
+        }
+      );
+    }
 
     if (!response.ok) {
       if (response.status === 429) {
@@ -193,7 +214,7 @@ Guidelines:
     }
 
     const data = await response.json();
-    const rawContent = useLovableGateway
+    const rawContent = useOpenAiCompatible
       ? data.choices?.[0]?.message?.content
       : data.candidates?.[0]?.content?.parts?.[0]?.text;
 

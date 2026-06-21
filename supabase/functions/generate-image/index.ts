@@ -20,83 +20,121 @@ serve(async (req) => {
       );
     }
 
-    // Try Lovable Gateway first (supports image generation), fallback to Google API
+    // Try Stability AI API (generates image), Groq API (generates SVG placeholder), Lovable Gateway (generates image), or Google API (generates SVG placeholder)
+    const STABILITY_API_KEY = Deno.env.get("STABILITY_API_KEY");
+    const GROQ_API_KEY = Deno.env.get("GROQ_API_KEY");
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     const GOOGLE_API_KEY = Deno.env.get("GOOGLE_API_KEY");
     
-    if (!LOVABLE_API_KEY && !GOOGLE_API_KEY) {
-      throw new Error("Either LOVABLE_API_KEY or GOOGLE_API_KEY must be configured");
+    if (!STABILITY_API_KEY && !GROQ_API_KEY && !LOVABLE_API_KEY && !GOOGLE_API_KEY) {
+      throw new Error("Neither STABILITY_API_KEY, GROQ_API_KEY, LOVABLE_API_KEY, nor GOOGLE_API_KEY is configured");
     }
-    
-    const useLovableGateway = !!LOVABLE_API_KEY;
 
-    const prompt = `Create a professional, modern, visually striking social media visual for a LinkedIn post about: "${topic}". ${content ? `The post says: "${content.substring(0, 200)}"` : ''} Style: clean, corporate-friendly, high contrast, suitable as a LinkedIn featured image. No text overlay. Abstract or conceptual illustration.`;
+    let imageUrl: string;
 
-    const response = useLovableGateway
-      ? await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${LOVABLE_API_KEY}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            model: "google/gemini-3-pro-image-preview",
-            messages: [{ role: "user", content: prompt }],
-            modalities: ["image", "text"],
-          }),
+    if (STABILITY_API_KEY) {
+      const prompt = `Create a professional, modern, visually striking social media visual for a LinkedIn post about: "${topic}". ${content ? `The post says: "${content.substring(0, 200)}"` : ''} Style: clean, corporate-friendly, high contrast, suitable as a LinkedIn featured image. No text overlay. Abstract or conceptual illustration.`;
+      
+      const response = await fetch("https://api.stability.ai/v1/generation/stable-diffusion-xl-1024-v1-0/text-to-image", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+          "Authorization": `Bearer ${STABILITY_API_KEY}`,
+        },
+        body: JSON.stringify({
+          text_prompts: [
+            {
+              text: prompt,
+              weight: 1
+            }
+          ],
+          cfg_scale: 7,
+          height: 1024,
+          width: 1024,
+          steps: 30,
+          samples: 1
         })
-      : await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GOOGLE_API_KEY}`,
-          {
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("Stability AI error:", response.status, errorText);
+        throw new Error(`Stability AI generation failed: ${response.status}`);
+      }
+
+      const responseJSON = await response.json();
+      const base64Image = responseJSON.artifacts?.[0]?.base64;
+      if (!base64Image) {
+        throw new Error("No image data returned from Stability AI");
+      }
+      imageUrl = `data:image/png;base64,${base64Image}`;
+    } else if (GROQ_API_KEY) {
+      // Groq does not do image generation, use placeholder SVG
+      imageUrl = "data:image/svg+xml;base64," + btoa(`<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630"><rect width="1200" height="630" fill="#0077b5"/><text x="50%" y="50%" text-anchor="middle" fill="white" font-size="48" font-family="Arial">${topic}</text></svg>`);
+    } else {
+      const useLovableGateway = !!LOVABLE_API_KEY;
+      const prompt = `Create a professional, modern, visually striking social media visual for a LinkedIn post about: "${topic}". ${content ? `The post says: "${content.substring(0, 200)}"` : ''} Style: clean, corporate-friendly, high contrast, suitable as a LinkedIn featured image. No text overlay. Abstract or conceptual illustration.`;
+
+      const response = useLovableGateway
+        ? await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
             method: "POST",
             headers: {
+              Authorization: `Bearer ${LOVABLE_API_KEY}`,
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
-              contents: [{
-                parts: [{ text: prompt }]
-              }],
-              generationConfig: {
-                temperature: 0.7,
-                topK: 40,
-                topP: 0.95,
-              }
+              model: "google/gemini-3-pro-image-preview",
+              messages: [{ role: "user", content: prompt }],
+              modalities: ["image", "text"],
             }),
-          }
-        );
+          })
+        : await fetch(
+            `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GOOGLE_API_KEY}`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                contents: [{
+                  parts: [{ text: prompt }]
+                }],
+                generationConfig: {
+                  temperature: 0.7,
+                  topK: 40,
+                  topP: 0.95,
+                }
+              }),
+            }
+          );
 
-    if (!response.ok) {
-      if (response.status === 429) {
-        return new Response(
-          JSON.stringify({ error: "Rate limit exceeded. Please try again shortly." }),
-          { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
+      if (!response.ok) {
+        if (response.status === 429) {
+          return new Response(
+            JSON.stringify({ error: "Rate limit exceeded. Please try again shortly." }),
+            { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+        if (response.status === 402) {
+          return new Response(
+            JSON.stringify({ error: "AI credits depleted. Please add funds." }),
+            { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+        const text = await response.text();
+        console.error("Image generation error:", response.status, text);
+        throw new Error(`Image generation error: ${response.status}`);
       }
-      if (response.status === 402) {
-        return new Response(
-          JSON.stringify({ error: "AI credits depleted. Please add funds." }),
-          { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
-      }
-      const text = await response.text();
-      console.error("Image generation error:", response.status, text);
-      throw new Error(`Image generation error: ${response.status}`);
-    }
 
-    const data = await response.json();
-    
-    let imageUrl: string;
-    
-    if (useLovableGateway) {
-      // Lovable Gateway supports image generation
-      imageUrl = data.choices?.[0]?.message?.images?.[0]?.image_url?.url;
+      const data = await response.json();
+      if (useLovableGateway) {
+        imageUrl = data.choices?.[0]?.message?.images?.[0]?.image_url?.url;
+      }
+      
       if (!imageUrl) {
-        // Fallback to SVG placeholder if no image returned
         imageUrl = "data:image/svg+xml;base64," + btoa(`<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630"><rect width="1200" height="630" fill="#0077b5"/><text x="50%" y="50%" text-anchor="middle" fill="white" font-size="48" font-family="Arial">${topic}</text></svg>`);
       }
-    } else {
-      // Google API doesn't support image generation directly, use placeholder
-      imageUrl = "data:image/svg+xml;base64," + btoa(`<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630"><rect width="1200" height="630" fill="#0077b5"/><text x="50%" y="50%" text-anchor="middle" fill="white" font-size="48" font-family="Arial">${topic}</text></svg>`);
     }
 
     // Upload to storage

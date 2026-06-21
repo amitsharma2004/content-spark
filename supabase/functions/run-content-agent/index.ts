@@ -23,8 +23,15 @@ serve(async (req) => {
     // Update status to drafting
     await supabase.from("kanban_cards").update({ status: "drafting", updated_at: new Date().toISOString() }).eq("id", card_id);
 
+    const GROQ_API_KEY = Deno.env.get("GROQ_API_KEY");
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
+    if (!GROQ_API_KEY && !LOVABLE_API_KEY) {
+      throw new Error("Neither GROQ_API_KEY nor LOVABLE_API_KEY is configured");
+    }
+
+    const apiUrl = GROQ_API_KEY ? "https://api.groq.com/openai/v1/chat/completions" : "https://ai.gateway.lovable.dev/v1/chat/completions";
+    const apiKey = GROQ_API_KEY || LOVABLE_API_KEY;
+    const model = GROQ_API_KEY ? "llama-3.3-70b-versatile" : "google/gemini-3-flash-preview";
 
     const platformFormats: Record<string, string> = {
       blog: "Write a full blog article with introduction, 3-5 sections with headers, and conclusion. 800-1200 words.",
@@ -46,11 +53,11 @@ Structure your output as:
 
 Write naturally and engagingly. Avoid generic filler.`;
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const response = await fetch(apiUrl, {
       method: "POST",
-      headers: { Authorization: `Bearer ${LOVABLE_API_KEY}`, "Content-Type": "application/json" },
+      headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
       body: JSON.stringify({
-        model: "google/gemini-3-flash-preview",
+        model: model,
         messages: [
           { role: "system", content: systemPrompt },
           { role: "user", content: `Topic: "${card.topic}"\nTitle: "${card.title}"\n\nResearch notes:\n${card.search_result || "No research available."}` },

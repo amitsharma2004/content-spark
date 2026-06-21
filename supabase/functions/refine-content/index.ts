@@ -19,56 +19,76 @@ serve(async (req) => {
       );
     }
 
-    // Try Lovable Gateway first, fallback to Google API
+    // Try Groq API, fallback to Lovable Gateway or Google API
+    const GROQ_API_KEY = Deno.env.get("GROQ_API_KEY");
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     const GOOGLE_API_KEY = Deno.env.get("GOOGLE_API_KEY");
     
-    if (!LOVABLE_API_KEY && !GOOGLE_API_KEY) {
-      throw new Error("Either LOVABLE_API_KEY or GOOGLE_API_KEY must be configured");
+    if (!GROQ_API_KEY && !LOVABLE_API_KEY && !GOOGLE_API_KEY) {
+      throw new Error("Neither GROQ_API_KEY, LOVABLE_API_KEY, nor GOOGLE_API_KEY is configured");
     }
     
-    const useLovableGateway = !!LOVABLE_API_KEY;
+    const useOpenAiCompatible = !!GROQ_API_KEY || !!LOVABLE_API_KEY;
 
     const systemPrompt = `You are a content editing expert. The user will give you a piece of social media content and a refinement instruction. Apply the instruction and return ONLY the refined text — no explanation, no quotes, no markdown fences. Keep the same language and approximate length unless the instruction says otherwise.`;
 
-    const response = useLovableGateway
-      ? await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    let response;
+    if (GROQ_API_KEY) {
+      response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${GROQ_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "llama-3.3-70b-versatile",
+          messages: [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: `Original content:\n\n${content}\n\nInstruction: ${instruction}` },
+          ],
+          temperature: 0.7,
+        }),
+      });
+    } else if (LOVABLE_API_KEY) {
+      response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${LOVABLE_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "google/gemini-2.5-flash",
+          messages: [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: `Original content:\n\n${content}\n\nInstruction: ${instruction}` },
+          ],
+          stream: false,
+        }),
+      });
+    } else {
+      response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GOOGLE_API_KEY}`,
+        {
           method: "POST",
           headers: {
-            Authorization: `Bearer ${LOVABLE_API_KEY}`,
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            model: "google/gemini-2.5-flash",
-            messages: [
-              { role: "system", content: systemPrompt },
-              { role: "user", content: `Original content:\n\n${content}\n\nInstruction: ${instruction}` },
-            ],
-            stream: false,
+            contents: [{
+              parts: [
+                { text: systemPrompt },
+                { text: `Original content:\n\n${content}\n\nInstruction: ${instruction}` }
+              ]
+            }],
+            generationConfig: {
+              temperature: 0.7,
+              topK: 40,
+              topP: 0.95,
+            }
           }),
-        })
-      : await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GOOGLE_API_KEY}`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              contents: [{
-                parts: [
-                  { text: systemPrompt },
-                  { text: `Original content:\n\n${content}\n\nInstruction: ${instruction}` }
-                ]
-              }],
-              generationConfig: {
-                temperature: 0.7,
-                topK: 40,
-                topP: 0.95,
-              }
-            }),
-          }
-        );
+        }
+      );
+    }
 
     if (!response.ok) {
       if (response.status === 429) {
@@ -89,7 +109,7 @@ serve(async (req) => {
     }
 
     const data = await response.json();
-    const refined = useLovableGateway
+    const refined = useOpenAiCompatible
       ? data.choices?.[0]?.message?.content?.trim()
       : data.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
     if (!refined) throw new Error("No content returned from AI");
