@@ -52,3 +52,4 @@ supabase functions deploy
 ## License
 
 MIT
+
