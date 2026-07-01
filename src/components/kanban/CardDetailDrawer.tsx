@@ -5,7 +5,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { KanbanCard, PLATFORM_CONFIG, TONE_COLORS, AGENT_STATUS_MAP } from '@/types/kanban';
 import { cn } from '@/lib/utils';
-import { CheckCircle2, XCircle, RefreshCw, Rocket, Search, PenLine, Shield } from 'lucide-react';
+import { CheckCircle2, XCircle, RefreshCw, Rocket, Search, PenLine, Shield, Eye, Code } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
 interface Props {
@@ -18,8 +18,67 @@ interface Props {
   isAdmin?: boolean;
 }
 
+function parseInlineMarkdown(text: string) {
+  const parts = text.split(/(\*\*.*?\*\*)/g);
+  return parts.map((part, index) => {
+    if (part.startsWith('**') && part.endsWith('**')) {
+      return <strong key={index} className="font-semibold text-foreground">{part.slice(2, -2)}</strong>;
+    }
+    return part;
+  });
+}
+
+function renderMarkdown(text: string) {
+  if (!text) return null;
+  const lines = text.split('\n');
+  return (
+    <div className="space-y-1 text-xs text-muted-foreground leading-relaxed">
+      {lines.map((line, i) => {
+        const trimmed = line.trim();
+        if (trimmed === '---') {
+          return <hr key={i} className="my-3 border-border" />;
+        }
+        if (line.startsWith('### ')) {
+          return <h3 key={i} className="text-xs font-bold mt-3 mb-1 text-foreground">{line.substring(4)}</h3>;
+        }
+        if (line.startsWith('## ')) {
+          return <h2 key={i} className="text-sm font-bold mt-4 mb-2 border-b border-border pb-1 text-foreground">{line.substring(3)}</h2>;
+        }
+        if (line.startsWith('# ')) {
+          return <h1 key={i} className="text-base font-bold mt-5 mb-3 text-foreground">{line.substring(2)}</h1>;
+        }
+        if (line.startsWith('* ') || line.startsWith('- ')) {
+          return (
+            <li key={i} className="ml-4 list-disc my-0.5">
+              {parseInlineMarkdown(line.substring(2))}
+            </li>
+          );
+        }
+        if (/^\d+\.\s/.test(line)) {
+          const content = line.replace(/^\d+\.\s/, '');
+          return (
+            <li key={i} className="ml-4 list-decimal my-0.5">
+              {parseInlineMarkdown(content)}
+            </li>
+          );
+        }
+        if (trimmed === '') {
+          return <div key={i} className="h-2" />;
+        }
+        return (
+          <p key={i} className="my-0.5">
+            {parseInlineMarkdown(line)}
+          </p>
+        );
+      })}
+    </div>
+  );
+}
+
 export function CardDetailDrawer({ card, open, onOpenChange, onApprove, onReject, onRerunAgent, isAdmin }: Props) {
   const [editableContent, setEditableContent] = useState('');
+  const [previewResearch, setPreviewResearch] = useState(true);
+  const [previewDraft, setPreviewDraft] = useState(true);
 
   useEffect(() => {
     if (card) setEditableContent(card.final_content || card.draft_content || '');
@@ -79,20 +138,76 @@ export function CardDetailDrawer({ card, open, onOpenChange, onApprove, onReject
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="research" className="mt-3">
+          <TabsContent value="research" className="mt-3 space-y-2">
             {card.search_result ? (
-              <div className="rounded-lg bg-muted p-3 text-sm whitespace-pre-wrap font-mono text-xs leading-relaxed">
-                {card.search_result}
+              <div className="space-y-2">
+                <div className="flex justify-end gap-1">
+                  <Button
+                    size="icon"
+                    variant={previewResearch ? "secondary" : "ghost"}
+                    className="h-7 w-7"
+                    onClick={() => setPreviewResearch(true)}
+                    title="Preview"
+                  >
+                    <Eye className="h-3.5 w-3.5" />
+                  </Button>
+                  <Button
+                    size="icon"
+                    variant={!previewResearch ? "secondary" : "ghost"}
+                    className="h-7 w-7"
+                    onClick={() => setPreviewResearch(false)}
+                    title="Raw Markdown"
+                  >
+                    <Code className="h-3.5 w-3.5" />
+                  </Button>
+                </div>
+                <div className="rounded-lg bg-muted p-3">
+                  {previewResearch ? (
+                    renderMarkdown(card.search_result)
+                  ) : (
+                    <div className="text-sm whitespace-pre-wrap font-mono text-xs leading-relaxed">
+                      {card.search_result}
+                    </div>
+                  )}
+                </div>
               </div>
             ) : (
               <p className="text-sm text-muted-foreground py-8 text-center">No research yet. Run the Search Agent to start.</p>
             )}
           </TabsContent>
 
-          <TabsContent value="draft" className="mt-3">
+          <TabsContent value="draft" className="mt-3 space-y-2">
             {card.draft_content ? (
-              <div className="rounded-lg bg-muted p-3 text-sm whitespace-pre-wrap font-mono text-xs leading-relaxed">
-                {card.draft_content}
+              <div className="space-y-2">
+                <div className="flex justify-end gap-1">
+                  <Button
+                    size="icon"
+                    variant={previewDraft ? "secondary" : "ghost"}
+                    className="h-7 w-7"
+                    onClick={() => setPreviewDraft(true)}
+                    title="Preview"
+                  >
+                    <Eye className="h-3.5 w-3.5" />
+                  </Button>
+                  <Button
+                    size="icon"
+                    variant={!previewDraft ? "secondary" : "ghost"}
+                    className="h-7 w-7"
+                    onClick={() => setPreviewDraft(false)}
+                    title="Raw Markdown"
+                  >
+                    <Code className="h-3.5 w-3.5" />
+                  </Button>
+                </div>
+                <div className="rounded-lg bg-muted p-3">
+                  {previewDraft ? (
+                    renderMarkdown(card.draft_content)
+                  ) : (
+                    <div className="text-sm whitespace-pre-wrap font-mono text-xs leading-relaxed">
+                      {card.draft_content}
+                    </div>
+                  )}
+                </div>
               </div>
             ) : (
               <p className="text-sm text-muted-foreground py-8 text-center">No draft yet. The Content Agent will create one after research.</p>

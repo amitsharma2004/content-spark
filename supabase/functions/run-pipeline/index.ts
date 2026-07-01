@@ -289,6 +289,7 @@ async function policyAgentNode(state: PipelineStateType): Promise<Partial<Pipeli
 
   const llmStructured = llm.withStructuredOutput(reviewSchema, {
     name: "policy_review",
+    method: "function_calling",
   });
 
   const prompt = ChatPromptTemplate.fromMessages([
